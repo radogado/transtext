@@ -96,7 +96,14 @@ class Polylang_Admin extends Polylang_Admin_Base {
 					$lang_slug = $lang->slug;
 
 					// update the language slug in posts meta
-					$posts = get_posts(array('numberposts'=>-1, 'fields' => 'ids', 'meta_key'=>'_translations', 'post_type'=>'any', 'post_status'=>'any'));
+					$posts = get_posts(array(
+						'numberposts' => -1,
+						'nopaging'    => true,
+						'fields'      => 'ids',
+						'meta_key'    => '_translations',
+						'post_type'   => 'any',
+						'post_status' => 'any'
+					));
 					$this->delete_translations('post', $posts, $lang_slug);
 
 					// update the language slug in categories & post tags meta
@@ -173,6 +180,7 @@ class Polylang_Admin extends Polylang_Admin_Base {
 						// update the language slug in posts meta
 						$posts = get_posts(array(
 							'numberposts' => -1,
+							'nopaging'    => true,
 							'fields'      => 'ids',
 							'meta_key'    => '_translations',
 							'post_type'   => 'any',
@@ -399,7 +407,7 @@ class Polylang_Admin extends Polylang_Admin_Base {
 	// validates data entered when creating or updating a language
 	function validate_lang($lang = null) {
 		// validate locale
-		// FIXME no validation for WordPress local as it breaks de_DE_Sie
+		// FIXME no validation for WordPress locale as it breaks de_DE_Sie
 		/*
 		$loc = $_POST['description'];
 		if ( !preg_match('#^[a-z]{2,3}$#', $loc) && !preg_match('#^[a-z]{2,3}_[A-Z]{2,3}$#', $loc) )
@@ -425,6 +433,7 @@ class Polylang_Admin extends Polylang_Admin_Base {
 	function get_objects_with_no_lang() {
 		$posts = get_posts(array(
 			'numberposts' => -1,
+			'nopaging'    => true,
 			'post_type'   => $this->post_types,
 			'post_status' => 'any',
 			'fields'      => 'ids',
@@ -472,6 +481,9 @@ class Polylang_Admin extends Polylang_Admin_Base {
 					$this->register_string(__('Widget title', 'polylang'), $title);
 			}
 		}
+
+		// allow plugins to modify our list of strings, mainly for use by our Polylang_WPML_Compat class
+		$this->strings = apply_filters('pll_get_strings', $this->strings);
 		return $this->strings;
 	}
 
